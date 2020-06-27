@@ -194,108 +194,24 @@ class Tickets(Stream):
 
     def sync(self, state):
         bookmark = self.get_bookmark(state)
-        tickets = self.client.tickets.incremental(start_time=bookmark)
-
-        audits_stream = TicketAudits(self.client)
-        metrics_stream = TicketMetrics(self.client)
-        comments_stream = TicketComments(self.client)
-
-        def emit_sub_stream_metrics(sub_stream):
-            if sub_stream.is_selected():
-                singer.metrics.log(LOGGER, Point(metric_type='counter',
-                                                 metric=singer.metrics.Metric.record_count,
-                                                 value=sub_stream.count,
-                                                 tags={'endpoint':sub_stream.stream.tap_stream_id}))
-                sub_stream.count = 0
-
-        if audits_stream.is_selected():
-            LOGGER.info("Syncing ticket_audits per ticket...")
+        tickets = self.client.tickets.incremental(start_time=bookmark, include=['metric_sets'])
 
         for ticket in tickets:
             zendesk_metrics.capture('ticket')
-            generated_timestamp_dt = datetime.datetime.utcfromtimestamp(ticket.generated_timestamp).replace(tzinfo=pytz.UTC)
-            self.update_bookmark(state, utils.strftime(generated_timestamp_dt))
+            self.update_bookmark(state, ticket.generated_timestamp)
 
             ticket_dict = ticket.to_dict()
             ticket_dict.pop('fields') # NB: Fields is a duplicate of custom_fields, remove before emitting
             should_yield = self._buffer_record((self.stream, ticket_dict))
 
-            if audits_stream.is_selected():
-                try:
-                    for audit in audits_stream.sync(ticket_dict["id"]):
-                        zendesk_metrics.capture('ticket_audit')
-                        self._buffer_record(audit)
-                except RecordNotFoundException:
-                    LOGGER.warning("Unable to retrieve audits for ticket (ID: %s), " \
-                    "the Zendesk API returned a RecordNotFound error", ticket_dict["id"])
-
-            if metrics_stream.is_selected():
-                try:
-                    for metric in metrics_stream.sync(ticket_dict["id"]):
-                        zendesk_metrics.capture('ticket_metric')
-                        self._buffer_record(metric)
-                except RecordNotFoundException:
-                    LOGGER.warning("Unable to retrieve metrics for ticket (ID: %s), " \
-                    "the Zendesk API returned a RecordNotFound error", ticket_dict["id"])
-
-            if comments_stream.is_selected():
-                try:
-                    # add ticket_id to ticket_comment so the comment can
-                    # be linked back to it's corresponding ticket
-                    for comment in comments_stream.sync(ticket_dict["id"]):
-                        zendesk_metrics.capture('ticket_comment')
-                        comment[1].ticket_id = ticket_dict["id"]
-                        self._buffer_record(comment)
-                except RecordNotFoundException:
-                    LOGGER.warning("Unable to retrieve comments for ticket (ID: %s), " \
-                    "the Zendesk API returned a RecordNotFound error", ticket_dict["id"])
-
             if should_yield:
                 for rec in self._empty_buffer():
                     yield rec
-                emit_sub_stream_metrics(audits_stream)
-                emit_sub_stream_metrics(metrics_stream)
-                emit_sub_stream_metrics(comments_stream)
                 singer.write_state(state)
 
         for rec in self._empty_buffer():
             yield rec
-        emit_sub_stream_metrics(audits_stream)
-        emit_sub_stream_metrics(metrics_stream)
-        emit_sub_stream_metrics(comments_stream)
         singer.write_state(state)
-
-class TicketAudits(Stream):
-    name = "ticket_audits"
-    replication_method = "INCREMENTAL"
-    count = 0
-
-    def sync(self, ticket_id):
-        ticket_audits = self.client.tickets.audits(ticket=ticket_id)
-        for ticket_audit in ticket_audits:
-            self.count += 1
-            yield (self.stream, ticket_audit)
-
-class TicketMetrics(Stream):
-    name = "ticket_metrics"
-    replication_method = "INCREMENTAL"
-    count = 0
-
-    def sync(self, ticket_id):
-        ticket_metric = self.client.tickets.metrics(ticket=ticket_id)
-        self.count += 1
-        yield (self.stream, ticket_metric)
-
-class TicketComments(Stream):
-    name = "ticket_comments"
-    replication_method = "INCREMENTAL"
-    count = 0
-
-    def sync(self, ticket_id):
-        ticket_comments = self.client.tickets.comments(ticket=ticket_id)
-        for ticket_comment in ticket_comments:
-            self.count += 1
-            yield (self.stream, ticket_comment)
 
 class SatisfactionRatings(Stream):
     name = "satisfaction_ratings"
@@ -439,14 +355,11 @@ STREAMS = {
     "groups": Groups,
     "users": Users,
     "organizations": Organizations,
-    "ticket_audits": TicketAudits,
-    "ticket_comments": TicketComments,
     "ticket_fields": TicketFields,
     "ticket_forms": TicketForms,
     "group_memberships": GroupMemberships,
     "macros": Macros,
     "satisfaction_ratings": SatisfactionRatings,
     "tags": Tags,
-    "ticket_metrics": TicketMetrics,
     "sla_policies": SLAPolicies,
 }

@@ -379,17 +379,238 @@
         ]
       }
     },
-    "problem_id": {
-      "type": [
-        "null",
-        "integer"
-      ]
-    },
     "forum_topic_id": {
       "type": [
         "null",
         "integer"
       ]
+    },
+    "metric_set": {
+      "url": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "id": {
+        "type": [
+          "null",
+          "integer"
+        ]
+      },
+      "ticket_id": {
+        "type": [
+          "null",
+          "integer"
+        ]
+      },
+      "created_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "updated_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "group_stations": {
+        "type": [
+          "null",
+          "integer"
+        ]
+      },
+      "assignee_stations": {
+        "type": [
+          "null",
+          "integer"
+        ]
+      },
+      "reopens": {
+        "type": [
+          "null",
+          "integer"
+        ]
+      },
+      "replies": {
+        "type": [
+          "null",
+          "integer"
+        ]
+      },
+      "assignee_updated_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "requester_updated_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "status_updated_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "initially_assigned_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "assigned_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "solved_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "latest_comment_added_at": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "reply_time_in_minutes": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "calendar": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "business": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      },
+      "first_resolution_time_in_minutes": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "calendar": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "business": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      },
+      "full_resolution_time_in_minutes": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "calendar": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "business": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      },
+      "agent_wait_time_in_minutes": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "calendar": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "business": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      },
+      "requester_wait_time_in_minutes": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "calendar": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "business": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      },
+      "on_hold_time_in_minutes": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "calendar": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "business": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      }
     }
   },
   "type": [

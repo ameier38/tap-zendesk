@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.0
+  * Include metrics in tickets. Remove ticket sub-streams.
+
 ## 1.4.7
   * Use `start_time` query parameter for satisfaction_ratings stream [#37](https://github.com/singer-io/tap-zendesk/pull/37)
 
