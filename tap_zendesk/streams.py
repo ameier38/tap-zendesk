@@ -60,12 +60,16 @@ class Stream():
         self.client = client
 
     def get_bookmark(self, state):
-        return utils.strptime_with_tz(singer.get_bookmark(state, self.name, self.replication_key))
+        value = singer.get_bookmark(state, self.name, self.replication_key)
+        parsed_value = utils.strptime_with_tz(value) if isinstance(value, str) else value
+        return parsed_value
 
     def update_bookmark(self, state, value):
-        current_bookmark = self.get_bookmark(state)
-        if value and utils.strptime_with_tz(value) > current_bookmark:
-            singer.write_bookmark(state, self.name, self.replication_key, value)
+        if value:
+            parsed_value = utils.strptime_with_tz(value) if isinstance(value, str) else value
+            current_bookmark = self.get_bookmark(state)
+            if parsed_value > current_bookmark:
+                singer.write_bookmark(state, self.name, self.replication_key, value)
 
 
     def load_schema(self):
